@@ -10,12 +10,19 @@ struct AllDoneView: View {
         VStack(spacing: 16) {
             Spacer()
 
-            Image("plantoDone")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 140, height: 160)
-                .padding(24)
-                .background(Color(white: 0.1), in: Circle())
+            ZStack {
+                // الطبقة ١: الدائرة
+                Circle()
+                    .fill(Color(white: 0.1))
+                    .frame(width: 190, height: 190)
+                    .offset(y: 15)
+
+                // الطبقة ٢: النبتة (أكبر من الدائرة)
+                Image("plantoDone")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 220)
+            }
 
             Text("All Done! 🎉")
                 .font(.title2)

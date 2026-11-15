@@ -32,6 +32,17 @@ enum WateringDays: String, CaseIterable {
     case onceAWeek = "Once a week"
     case every10Days = "Every 10 days"
     case every2Weeks = "Every 2 weeks"
+    // كم يوم بين كل سقية
+    var days: Int {
+        switch self {
+        case .everyDay: return 1
+        case .every2Days: return 2
+        case .every3Days: return 3
+        case .onceAWeek: return 7
+        case .every10Days: return 10
+        case .every2Weeks: return 14
+        }
+    }
 }
 
 // MARK: - Water Amount

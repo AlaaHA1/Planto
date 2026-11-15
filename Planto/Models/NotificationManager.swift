@@ -2,7 +2,41 @@
 //  NotificationManager.swift
 //  Planto
 //
-//  Created by Alaa Alanazi on 01/06/1448 AH.
-//
 
-import Foundation
+import UserNotifications
+
+enum NotificationManager {
+
+    // ١. نطلب الإذن من المستخدم
+    static func requestPermission() {
+        UNUserNotificationCenter.current()
+            .requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+    }
+
+    // ٢. نجدول تذكير للنبتة
+    static func schedule(for plant: Plant) {
+        let content = UNMutableNotificationContent()
+        content.title = "Planto"
+        content.body = "Hey! let's water your \(plant.name) 🌱"
+        content.sound = .default
+
+        // كل كم ثانية؟ (الأيام × ٢٤ ساعة × ٦٠ دقيقة × ٦٠ ثانية)
+        let seconds: Double = 10
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: plant.id.uuidString,
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    // ٣. نلغي التذكير لما تنحذف النبتة
+    static func cancel(for plant: Plant) {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: [plant.id.uuidString])
+    }
+}
