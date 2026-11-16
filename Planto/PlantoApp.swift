@@ -2,8 +2,6 @@
 //  PlantoApp.swift
 //  Planto
 //
-//  Created by Alaa Alanazi on 29/05/1448 AH.
-//
 
 import SwiftUI
 
@@ -11,7 +9,8 @@ import SwiftUI
 struct PlantoApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            StartView()
+                .preferredColorScheme(.dark)
         }
     }
 }

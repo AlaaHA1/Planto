@@ -6,9 +6,12 @@
 import SwiftUI
 
 struct TodayReminderView: View {
-    @State var plants = Plant.samples
+    @State var plants: [Plant] = [] // 🆕 تبدأ فاضية
     @State var showSheet = false
     @State var plantToEdit: Plant?
+
+    // 🆕 ينحفظ في الجوال: هل المستخدم أضاف نبتة قبل؟
+    @AppStorage("hasStarted") var hasStarted = false
 
     // كم نبتة انسقت؟
     var wateredCount: Int {
@@ -30,9 +33,14 @@ struct TodayReminderView: View {
         }
     }
 
-    // 🆕 هل كل النباتات انسقت؟
+    // هل كل النباتات انسقت؟
     var allDone: Bool {
         !plants.isEmpty && wateredCount == plants.count
+    }
+
+    // 🆕 نعرض زر + في كل الحالات إلا شاشة البداية
+    var showPlusButton: Bool {
+        hasStarted || !plants.isEmpty
     }
 
     var body: some View {
@@ -43,8 +51,16 @@ struct TodayReminderView: View {
                 VStack(spacing: 0) {
                     Divider()
 
-                    // 🆕 لو كلها انسقت: شاشة الاحتفال
-                    if allDone {
+                    // 🆕 نختار الشاشة حسب الحالة
+                    if plants.isEmpty {
+                        if hasStarted {
+                            NoRemindersView()
+                        } else {
+                            StartView {
+                                showSheet = true
+                            }
+                        }
+                    } else if allDone {
                         AllDoneView()
                     } else {
                         // النص وشريط التقدم
@@ -68,7 +84,6 @@ struct TodayReminderView: View {
                                     plantToEdit = plant
                                 }
                                 .listRowBackground(Color.clear)
-                                // 🆕 السوايب للحذف
                                 .swipeActions(edge: .trailing) {
                                     Button(role: .destructive) {
                                         delete(plant)
@@ -82,24 +97,29 @@ struct TodayReminderView: View {
                     }
                 }
 
-                // الطبقة ٢: زر +
-                Button {
-                    showSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
-                        .background(Color.plantGreen, in: Circle())
+                // الطبقة ٢: زر + 🆕 يطلع بس لو مو شاشة البداية
+                if showPlusButton {
+                    Button {
+                        showSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 56, height: 56)
+                            .background(Color.plantGreen, in: Circle())
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("My Plants 🌱")
             // شيت الإضافة
             .sheet(isPresented: $showSheet) {
                 SetReminderView(onSave: { newPlant in
-                    plants.append(newPlant)
-                    NotificationManager.schedule(for: newPlant) // 🆕
+                    withAnimation {
+                        plants.append(newPlant)
+                    }
+                    hasStarted = true // 🆕 صار مستخدم قديم
+                    NotificationManager.schedule(for: newPlant)
                 })
             }
             // شيت التعديل
@@ -119,7 +139,6 @@ struct TodayReminderView: View {
                     water: plant.water
                 )
             }
-            // 🆕 نطلب إذن الإشعارات أول ما تفتح الشاشة
             .onAppear {
                 NotificationManager.requestPermission()
             }
@@ -136,7 +155,6 @@ struct TodayReminderView: View {
             plants[index].wateringDays = updated.wateringDays
             plants[index].water = updated.water
 
-            // 🆕 نعيد جدولة التذكير بالمعلومات الجديدة
             NotificationManager.cancel(for: plants[index])
             NotificationManager.schedule(for: plants[index])
         }
@@ -144,13 +162,17 @@ struct TodayReminderView: View {
 
     // نحذف النبتة
     func delete(_ plant: Plant) {
-        NotificationManager.cancel(for: plant) // 🆕
+        NotificationManager.cancel(for: plant)
         withAnimation {
             plants.removeAll { $0.id == plant.id }
         }
     }
 }
 
-#Preview {
+#Preview("New user") {
     TodayReminderView()
+}
+
+#Preview("With plants") {
+    TodayReminderView(plants: Plant.samples)
 }
