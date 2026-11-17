@@ -6,25 +6,21 @@
 import SwiftUI
 
 struct TodayReminderView: View {
-    @State var plants: [Plant] = [] // 🆕 تبدأ فاضية
+    @State var plants: [Plant] = []
     @State var showSheet = false
     @State var plantToEdit: Plant?
 
-    // 🆕 ينحفظ في الجوال: هل المستخدم أضاف نبتة قبل؟
     @AppStorage("hasStarted") var hasStarted = false
 
-    // كم نبتة انسقت؟
     var wateredCount: Int {
         plants.filter { $0.isWatered }.count
     }
 
-    // نسبة التقدم (من 0 إلى 1)
     var progress: Double {
         if plants.isEmpty { return 0 }
         return Double(wateredCount) / Double(plants.count)
     }
 
-    // النص يتغير حسب العدد
     var headerText: String {
         if wateredCount == 0 {
             return "Your plants are waiting for a sip 💦"
@@ -33,12 +29,10 @@ struct TodayReminderView: View {
         }
     }
 
-    // هل كل النباتات انسقت؟
     var allDone: Bool {
         !plants.isEmpty && wateredCount == plants.count
     }
 
-    // 🆕 نعرض زر + في كل الحالات إلا شاشة البداية
     var showPlusButton: Bool {
         hasStarted || !plants.isEmpty
     }
@@ -51,7 +45,6 @@ struct TodayReminderView: View {
                 VStack(spacing: 0) {
                     Divider()
 
-                    // 🆕 نختار الشاشة حسب الحالة
                     if plants.isEmpty {
                         if hasStarted {
                             NoRemindersView()
@@ -66,10 +59,22 @@ struct TodayReminderView: View {
                         // النص وشريط التقدم
                         VStack(spacing: 12) {
                             Text(headerText)
-                            ProgressView(value: progress)
-                                .tint(.plantGreen)
+                                .font(.subheadline)
+
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color.progressTrack)
+                                    Capsule()
+                                        .fill(Color.progressGreen)
+                                        .frame(width: geo.size.width * progress)
+                                }
+                            }
+                            .frame(height: 8)
+                            .animation(.easeInOut, value: progress)
                         }
-                        .padding()
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 20)
 
                         // القائمة
                         List {
@@ -84,6 +89,7 @@ struct TodayReminderView: View {
                                     plantToEdit = plant
                                 }
                                 .listRowBackground(Color.clear)
+                                .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
                                 .swipeActions(edge: .trailing) {
                                     Button(role: .destructive) {
                                         delete(plant)
@@ -97,18 +103,28 @@ struct TodayReminderView: View {
                     }
                 }
 
-                // الطبقة ٢: زر + 🆕 يطلع بس لو مو شاشة البداية
+                // الطبقة ٢: زر + (مثل Sketch)
                 if showPlusButton {
                     Button {
                         showSheet = true
                     } label: {
                         Image(systemName: "plus")
-                            .font(.title2)
+                            .font(.system(size: 22, weight: .medium))
                             .foregroundStyle(.white)
-                            .frame(width: 56, height: 56)
+                            .frame(width: 50, height: 50)
+                            // اللون الأخضر الصافي
                             .background(Color.plantGreen, in: Circle())
+                            // الحافة الرفيعة الفاتحة
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.glassRim, lineWidth: 1.5)
+                            )
+                            // حركة الـLiquid Glass لما تضغطين
+                            .glassEffect(.clear.interactive(), in: .circle)
                     }
-                    .padding()
+                    .buttonStyle(.plain)
+                    .padding(.trailing, 24)
+                    .padding(.bottom, 16)
                 }
             }
             .navigationTitle("My Plants 🌱")
@@ -118,7 +134,7 @@ struct TodayReminderView: View {
                     withAnimation {
                         plants.append(newPlant)
                     }
-                    hasStarted = true // 🆕 صار مستخدم قديم
+                    hasStarted = true
                     NotificationManager.schedule(for: newPlant)
                 })
             }

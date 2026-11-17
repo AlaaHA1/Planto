@@ -34,19 +34,23 @@ struct StartView: View {
 
             Spacer()
 
-            // ٣. الزر
             Button {
                 onStart()
             } label: {
                 Text("Set Plant Reminder")
                     .font(.headline)
                     .foregroundStyle(.white)
-                    .frame(width: 280, height: 44)
-                    .background(
-                        Color(red: 0.36, green: 0.69, blue: 0.53),
-                        in: Capsule()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.plantGreen, in: Capsule())
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(Color.glassRim, lineWidth: 1.5)
                     )
+                    .glassEffect(.clear.interactive(), in: .capsule)
             }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 48)
             .padding(.bottom, 120)
         }
     }

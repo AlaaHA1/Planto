@@ -8,13 +8,8 @@ import SwiftUI
 struct SetReminderView: View {
     @Environment(\.dismiss) var dismiss
 
-    // وش نسوي بالنبتة لما نضغط ✓
     var onSave: (Plant) -> Void = { _ in }
-
-    // 🆕 هل نعدّل نبتة موجودة؟
     var isEditing = false
-
-    // 🆕 وش نسوي لما نضغط Delete
     var onDelete: () -> Void = {}
 
     @State var name = ""
@@ -28,9 +23,10 @@ struct SetReminderView: View {
             Form {
                 // ١. اسم النبتة
                 Section {
-                    HStack {
+                    HStack(spacing: 8) {
                         Text("Plant Name")
                         TextField("Pothos", text: $name)
+                            .tint(.checkGreen) // مؤشر أخضر
                     }
                 }
 
@@ -41,7 +37,7 @@ struct SetReminderView: View {
                             Text(room.rawValue).tag(room)
                         }
                     } label: {
-                        Label("Room", systemImage: "location")
+                        rowLabel("Room", icon: "location")
                     }
 
                     Picker(selection: $light) {
@@ -49,7 +45,7 @@ struct SetReminderView: View {
                             Text(light.rawValue).tag(light)
                         }
                     } label: {
-                        Label("Light", systemImage: "sun.max")
+                        rowLabel("Light", icon: "sun.max")
                     }
                 }
 
@@ -60,7 +56,7 @@ struct SetReminderView: View {
                             Text(days.rawValue).tag(days)
                         }
                     } label: {
-                        Label("Watering Days", systemImage: "drop")
+                        rowLabel("Watering Days", icon: "drop")
                     }
 
                     Picker(selection: $water) {
@@ -68,11 +64,11 @@ struct SetReminderView: View {
                             Text(amount.rawValue).tag(amount)
                         }
                     } label: {
-                        Label("Water", systemImage: "drop")
+                        rowLabel("Water", icon: "drop")
                     }
                 }
 
-                // 🆕 ٤. زر الحذف (يطلع بس وقت التعديل)
+                // ٤. زر الحذف (وقت التعديل بس)
                 if isEditing {
                     Section {
                         Button(role: .destructive) {
@@ -85,6 +81,9 @@ struct SetReminderView: View {
                     }
                 }
             }
+            .font(.subheadline)          // خط أصغر مثل التصميم
+            .tint(.secondary)            // قيم الـPicker رمادي
+            .listSectionSpacing(28)      // مسافة بين الصناديق
             .navigationTitle("Set Reminder")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -97,7 +96,7 @@ struct SetReminderView: View {
                     }
                 }
 
-                // زر ✓
+                // زر ✓ (Liquid Glass)
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         let newPlant = Plant(
@@ -111,6 +110,8 @@ struct SetReminderView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "checkmark")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(.white)
                     }
                     .buttonStyle(.glassProminent)
                     .tint(.plantGreen)
@@ -119,6 +120,16 @@ struct SetReminderView: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+
+    // عنوان الصف: أيقونة بيضاء لاصقة بالكلمة (مثل التصميم)
+    func rowLabel(_ title: String, icon: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(.white)
+            Text(title)
+                .foregroundStyle(.white)
+        }
     }
 }
 
