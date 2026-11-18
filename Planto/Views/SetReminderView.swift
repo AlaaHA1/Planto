@@ -18,6 +18,11 @@ struct SetReminderView: View {
     @State var wateringDays: WateringDays = .everyDay
     @State var water: WaterAmount = .ml20to50
 
+    // الاسم بدون مسافات في البداية والنهاية
+    var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -100,7 +105,7 @@ struct SetReminderView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         let newPlant = Plant(
-                            name: name,
+                            name: trimmedName,
                             room: room,
                             light: light,
                             wateringDays: wateringDays,
@@ -115,7 +120,7 @@ struct SetReminderView: View {
                     }
                     .buttonStyle(.glassProminent)
                     .tint(.plantGreen)
-                    .disabled(name.isEmpty)
+                    .disabled(trimmedName.isEmpty)
                 }
             }
         }

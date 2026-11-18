@@ -21,9 +21,10 @@ enum NotificationManager {
         content.sound = .default
 
         // كل كم ثانية؟ (الأيام × ٢٤ ساعة × ٦٠ دقيقة × ٦٠ ثانية)
-        let seconds: Double = 10
+        let seconds = Double(plant.wateringDays.days * 24 * 60 * 60)
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
+        // repeats: true عشان يتكرر كل فترة سقي، مو مرة وحدة بس
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: true)
 
         let request = UNNotificationRequest(
             identifier: plant.id.uuidString,

@@ -46,7 +46,7 @@ struct PlantRowView: View {
                 .foregroundStyle(.secondary)
 
                 Text(plant.name)
-                    .font(.title2)
+                    .font(.body)
 
                 HStack(spacing: 6) {
                     TagView(text: plant.light.rawValue, icon: plant.light.icon, color: .tagYellow)

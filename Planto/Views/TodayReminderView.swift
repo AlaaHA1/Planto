@@ -37,6 +37,11 @@ struct TodayReminderView: View {
         hasStarted || !plants.isEmpty
     }
 
+    // اللي ما انسقت فوق، والمسقية تحت
+    var sortedPlants: [Plant] {
+        plants.filter { !$0.isWatered } + plants.filter { $0.isWatered }
+    }
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
@@ -78,11 +83,9 @@ struct TodayReminderView: View {
 
                         // القائمة
                         List {
-                            ForEach($plants) { $plant in
+                            ForEach(sortedPlants) { plant in
                                 PlantRowView(plant: plant) {
-                                    withAnimation {
-                                        plant.isWatered.toggle()
-                                    }
+                                    toggleWatered(plant)
                                 }
                                 .contentShape(Rectangle())
                                 .onTapGesture {
@@ -173,6 +176,15 @@ struct TodayReminderView: View {
 
             NotificationManager.cancel(for: plants[index])
             NotificationManager.schedule(for: plants[index])
+        }
+    }
+
+    // نعلّم النبتة إنها انسقت (أو نلغيها) حسب الـ id
+    func toggleWatered(_ plant: Plant) {
+        if let index = plants.firstIndex(where: { $0.id == plant.id }) {
+            withAnimation {
+                plants[index].isWatered.toggle()
+            }
         }
     }
 
